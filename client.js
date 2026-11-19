@@ -2113,7 +2113,7 @@ window.__ModuleLoader__.load({
     }
 
     /** Compact chat with one Agent, hosted inside the office. */
-    function ChatPanel({ agent, sessions, t, role, imageUrlOf, uploadFile, onSeen, onClose, onOpenFull, onOpenPersona }) {
+    function ChatPanel({ agent, sessions, t, role, imageUrlOf, uploadFile, onSeen, onClose, onOpenFull, onOpenPersona, onHeaderDrag }) {
       const [opened, setOpened] = React.useState({ reference: null, error: null })
       const [draft, setDraft] = React.useState('')
       const [attachments, setAttachments] = React.useState(EMPTY)
@@ -2312,13 +2312,19 @@ window.__ModuleLoader__.load({
       }, [binding, agent])
 
       const stateOfAgent = agent ? agent.state : 'idle'
-      const head = h('div', { className: 'po-chatHead' },
+      const head = h('div', { className: 'po-chatHead', onMouseDown: onHeaderDrag },
         h('button', {
           type: 'button',
           className: 'po-avatarWrap po-avatarBtn',
           title: t('personaLabel'),
           'aria-label': t('personaLabel'),
-          onClick: () => { if (agent && typeof onOpenPersona === 'function') onOpenPersona(agent.id) },
+          onClick: (event) => {
+            if (!agent || typeof onOpenPersona !== 'function') return
+            const rect = event && event.currentTarget && event.currentTarget.getBoundingClientRect
+              ? event.currentTarget.getBoundingClientRect()
+              : null
+            onOpenPersona(agent.id, rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null)
+          },
         },
           h('span', { className: 'po-avatarBig' }, agent ? h(Avatar, { palette: agent.palette }) : null),
           agent
@@ -2541,6 +2547,32 @@ window.__ModuleLoader__.load({
       const namesRef = React.useRef(readNames())
       const [mugEditor, setMugEditor] = React.useState(null)
       const [personaEditor, setPersonaEditor] = React.useState(null)
+      const [cardPos, setCardPos] = React.useState(null)
+      const dragRef = React.useRef(null)
+      const startCardDrag = React.useCallback((event) => {
+        if (!event || event.button !== 0) return
+        const card = event.currentTarget && event.currentTarget.closest
+          ? event.currentTarget.closest('.po-modalCard')
+          : null
+        if (!card) return
+        const rect = card.getBoundingClientRect()
+        dragRef.current = { dx: event.clientX - rect.left, dy: event.clientY - rect.top }
+        setCardPos({ x: rect.left, y: rect.top })
+        const move = (moveEvent) => {
+          if (!dragRef.current) return
+          const x = Math.max(0, Math.min(window.innerWidth - 120, moveEvent.clientX - dragRef.current.dx))
+          const y = Math.max(0, Math.min(window.innerHeight - 60, moveEvent.clientY - dragRef.current.dy))
+          setCardPos({ x: x, y: y })
+        }
+        const up = () => {
+          dragRef.current = null
+          window.removeEventListener('mousemove', move)
+          window.removeEventListener('mouseup', up)
+        }
+        window.addEventListener('mousemove', move)
+        window.addEventListener('mouseup', up)
+      }, [])
+
       const [quip, setQuip] = React.useState(null)
       const [cat, setCat] = React.useState({ x: 80, y: 70, pose: 'sit', facing: 1 })
       const [dog, setDog] = React.useState({ x: 120, y: 90, pose: 'walk', facing: 1 })
@@ -3168,10 +3200,10 @@ window.__ModuleLoader__.load({
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [activeId])
 
-      const openPersona = React.useCallback((agentId) => {
+      const openPersona = React.useCallback((agentId, anchor) => {
         const agent = agents.find((item) => item.id === agentId)
         if (!agent) return
-        setPersonaEditor({ agentId: agentId, name: agent.name, text: personaBook[agentId] || '' })
+        setPersonaEditor({ agentId: agentId, name: agent.name, text: personaBook[agentId] || '', anchor: anchor || null })
       }, [agents, personaBook])
       const savePersona = React.useCallback(() => {
         if (personaEditor === null) return
@@ -3911,6 +3943,7 @@ window.__ModuleLoader__.load({
           role: 'dialog',
           'aria-modal': 'true',
           'aria-label': selected.name,
+          style: cardPos ? { position: 'fixed', left: cardPos.x + 'px', top: cardPos.y + 'px', margin: 0 } : null,
         },
         avatarBar,
         h(ChatPanel, {
@@ -3927,6 +3960,7 @@ window.__ModuleLoader__.load({
           onClose: () => { setSelectedId(null) },
           onOpenFull: (id) => { if (typeof props.openAgent === 'function') props.openAgent(id) },
           onOpenPersona: openPersona,
+          onHeaderDrag: startCardDrag,
         })))
         : null
 
@@ -4103,12 +4137,22 @@ window.__ModuleLoader__.load({
           className: 'po-editorBackdrop po-personaBackdrop',
           onClick: (event) => { if (event.target === event.currentTarget) setPersonaEditor(null) },
         },
-        h('div', { className: 'po-editor po-personaDialog po-personaPop', role: 'dialog', 'aria-modal': 'true' },
+        h('div', {
+          className: 'po-editor po-personaDialog po-personaPop',
+          role: 'dialog',
+          'aria-modal': 'true',
+          style: personaEditor.anchor
+            ? {
+              left: Math.max(12, personaEditor.anchor.left) + 'px',
+              top: Math.max(12, personaEditor.anchor.top - 170) + 'px',
+            }
+            : null,
+        },
           h('h2', { className: 'po-editorTitle' }, t('personaLabel') + ' · ' + personaEditor.name),
           h('p', { className: 'po-editorLabel' }, t('personaHint')),
           h('textarea', {
             className: 'po-editorInput',
-            rows: 10,
+            rows: 12,
             autoFocus: true,
             value: personaEditor.text,
             placeholder: t('personaPlaceholder'),
@@ -4427,13 +4471,14 @@ window.__ModuleLoader__.load({
       '.po-personaBackdrop{position:fixed;inset:0;z-index:299;background:transparent;}',
       '.po-avatarBtn:hover{box-shadow:0 0 0 2px var(--dsw-alias-brand-primary,#5b8def);}',
       '.po-personaDialog{width:min(560px,94%);}',
-      '.po-personaPop{position:fixed;top:96px;left:132px;z-index:300;max-width:min(560px,92vw);box-shadow:0 18px 50px rgba(0,0,0,.5);}',
+      '.po-personaPop{position:fixed;z-index:300;width:min(560px,92vw);box-shadow:0 18px 50px rgba(0,0,0,.5);}',
+      '.po-personaPop .po-editorInput{min-height:240px;}',
       '.po-avatarBig{display:flex;align-items:center;justify-content:center;width:44px;height:44px;',
       'border-radius:10px;background:var(--dsw-alias-bg-layer-2);overflow:hidden;}',
       '.po-avatarBig svg{width:36px;height:36px;display:block;}',
       '.po-stateDot{position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:50%;',
       'border:2px solid var(--dsw-alias-bg-layer-1);box-sizing:content-box;}',
-      '.po-chatHead{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 10px;',
+      '.po-chatHead{position:relative;cursor:grab;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 10px;',
       'border-bottom:1px solid var(--dsw-alias-border-l1);min-width:0;}',
       '.po-chatWho{display:flex;flex-direction:column;min-width:0;flex:1 1 120px;}',
       '.po-chatUsage{position:absolute;left:50%;transform:translateX(-50%);font-size:11px;opacity:.55;white-space:nowrap;pointer-events:none;}',

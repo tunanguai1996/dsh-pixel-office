@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-pixel-office",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "type": "module",
   "description": "A DSH Web panel that turns a workspace into a pixel office: every Agent sits at a desk, you click to talk, and the office keeps its own identities, rules and seat memory.",
