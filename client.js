@@ -3309,7 +3309,7 @@ window.__ModuleLoader__.load({
         const rules = agentRulesBook[agentId] || EMPTY
         const archive = (skills) => {
           const memory = Object.assign({}, seatMemoryBook[activeId] || {})
-          memory[slot] = { rules: rules, skills: skills || EMPTY }
+          memory[slot] = { rules: rules, skills: skills || EMPTY, summary: summaryBook[agentId] || EMPTY }
           const nextMemory = Object.assign({}, seatMemoryBook)
           nextMemory[activeId] = memory
           writeSeatMemory(nextMemory)
@@ -3335,7 +3335,7 @@ window.__ModuleLoader__.load({
           close()
           archive(skills)
         }, () => { close(); archive(EMPTY) })
-      }, [activeId, agentRulesBook, seatMemoryBook, sessions, props.archiveSession])
+      }, [activeId, agentRulesBook, seatMemoryBook, summaryBook, sessions, props.archiveSession])
 
       /** Send one memory block now: identity, persona, office rules, personal rules. */
       const interviewAgent = React.useCallback((agentId, personalText, overrides) => {
@@ -3348,7 +3348,24 @@ window.__ModuleLoader__.load({
         lines.push(t('memoryName') + ' ' + agent.name + (identity !== '' && identity !== agent.name ? '（' + identity + '）' : ''))
         const identitySummary = next.summary !== undefined ? String(next.summary || '').trim() : summaryOfIdentity(identity)
         if (identitySummary !== '') lines.push(t('identitySummaryLabel') + ' ' + identitySummary)
-        const ownSummary = summaryBook[agentId] || EMPTY
+        const seatEntry = (() => {
+          const seat = seatPlan.find((entry) => entry.agent && entry.agent.id === agentId)
+          const slot = seat ? slotIndexOf(seat.key) : -1
+          if (slot < 0) return null
+          const memory = seatMemoryBook[activeId] ? seatMemoryBook[activeId][slot] : null
+          return memory && Array.isArray(memory.summary) ? memory.summary : null
+        })()
+        let ownSummary = summaryBook[agentId] || EMPTY
+        if (ownSummary.length === 0 && seatEntry && seatEntry.length > 0) {
+          ownSummary = seatEntry
+          setSummaryBook((previous) => {
+            if (previous[agentId] && previous[agentId].length > 0) return previous
+            const next = Object.assign({}, previous)
+            next[agentId] = seatEntry
+            writeSummaries(next)
+            return next
+          })
+        }
         if (ownSummary.length > 0) {
           let notes = ''
           const recent = ownSummary.slice(-10)
