@@ -1,0 +1,47 @@
+{
+  "name": "@local/dsh-pixel-office",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "A DSH Web panel that turns a workspace into a pixel office: every Agent sits at a desk, you click to talk, and the office keeps its own identities, rules and seat memory.",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "README.md",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  },
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "pixel-art",
+    "office",
+    "agents",
+    "panel"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-name/dsh-pixel-office.git"
+  }
+}
