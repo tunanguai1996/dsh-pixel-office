@@ -49,6 +49,9 @@ window.__ModuleLoader__.load({
 
     const RULES_KEY = 'dsh-pixel-office.rules'
     const AGENT_RULES_KEY = 'dsh-pixel-office.agent-rules'
+    const TEAM_KEY = 'dsh-pixel-office.team-memory'
+    const TASK_KEY = 'dsh-pixel-office.tasks'
+    const CAP_KEY = 'dsh-pixel-office.capabilities'
     const SEAT_MEMORY_KEY = 'dsh-pixel-office.seat-memory'
     const PERSONA_KEY = 'dsh-pixel-office.persona'
     const MEMORY_HASH_KEY = 'dsh-pixel-office.memory-hash'
@@ -70,10 +73,6 @@ window.__ModuleLoader__.load({
         backToChat: 'Full chat',
         newSession: 'New session',
         officeLabel: 'Office',
-        stateWorking: 'Working',
-        stateWaiting: 'Needs you',
-        stateDone: 'New result',
-        stateIdle: 'Idle',
         emptyTitle: 'No Agents in this office yet',
         emptyHint: 'Start a session and a new pixel employee moves in.',
         noWorkspaceTitle: 'No workspace yet',
@@ -92,7 +91,6 @@ window.__ModuleLoader__.load({
         create: 'Create',
         save: 'Save',
         nameRequired: 'Enter a name',
-        renameFailed: 'Rename failed',
         newFailed: 'Could not start the conversation',
         skills: 'Skills',
         noSkills: 'No skills loaded yet.',
@@ -100,13 +98,17 @@ window.__ModuleLoader__.load({
         rules: 'Office rules',
         rulesEmpty: 'Click to write the rules',
         rulesHint: 'One rule per line; every message sent from this office carries them.',
+        teamMemoryLabel: 'Team summary',
+        teamMemoryEmpty: 'Nothing yet. Conclusions written here reach every employee, including new hires.',
+        teamMemoryPlaceholder: 'A conclusion worth sharing',
+        teamMemoryAdd: 'Add',
+        teamMemoryPrefix: '[Team summary shared by the whole office]',
         rulesExample: 'Keep replies short.',
         rulesPrefix: '[Office rules that every answer must follow]',
-        agentRules: 'Personal rules',
-        agentRulesHint: 'One rule per line; only this employee follows them, on top of the office rules.',
+        agentRules: 'Personal summary',
+        agentRulesHint: 'One line each; only this employee follows them, on top of the office rules.',
         agentRulesPrefix: '[Personal rules for this employee]',
         interview: 'Interview',
-        dispatchInstruction: 'When you need a colleague to do something, end your reply with one line: 派工：<name or identity>｜<task>. They will report back to you only.',
         dispatchPrefix: '[Work assigned by',
         dispatchTail: '] Finish it, then report back to that supervisor in a couple of sentences only.',
         reportPrefix: '[Report from',
@@ -120,11 +122,16 @@ window.__ModuleLoader__.load({
         identitySummaryLabel: 'Identity summary',
         identitySummaryPlaceholder: 'One line about what this identity does (sent with the identity)',
         personaLabel: 'Character setting',
+        capsLabel: 'Permission level',
+        capsDefault: 'Default (inherit DSH)',
+        capsPrefix: '[Capabilities granted to this employee] Stay inside this list.',
+        personaHint: 'How this employee thinks and speaks. It follows the person, not the identity.',
         personaPlaceholder: 'How this employee thinks and speaks, like a persona setting',
         personaPrefix: '[Character setting for this employee]',
         rosterPrefix: '[Office roster: name (identity) — use these to address or dispatch work]',
         memoryHeader: '[Memory sync from the pixel office] Remember the following: it is your identity, your persona, the office rules you must follow, and this desk history. Do not repeat it in replies.',
         memoryAuthoritative: 'If you noted a different name or identity before, this message wins and those notes are outdated.',
+        memoryNoFileNote: 'Never write your own name or identity into AGENTS.md: that file is shared by the whole office and would make everyone else answer as you. Keep identity in the conversation only; shared conclusions go to the office team summary.',
         memoryName: 'You are:',
         noneLabel: 'no identity',
         roleAdd: 'Add identity',
@@ -143,6 +150,13 @@ window.__ModuleLoader__.load({
         roleSupervisor: 'Supervisor',
         roleSecretary: 'Secretary',
         chat: 'Chat',
+        taskChip: 'Tasks',
+        taskTitle: 'Task board',
+        taskEmpty: 'No jobs yet. A dispatch line creates one.',
+        resumePrefix: '[Unfinished job from the last session] Please continue it now and report back when done.',
+        accept: 'Accept',
+        reject: 'Reject',
+        rejectPrefix: '[Rejected] The supervisor sent this back. Please redo it and report again.',
         chatPlaceholder: 'Message this employee — Enter sends, Shift+Enter breaks the line',
         send: 'Send',
         sending: 'Sending…',
@@ -162,10 +176,6 @@ window.__ModuleLoader__.load({
         backToChat: '完整对话',
         newSession: '新建会话',
         officeLabel: '办公室',
-        stateWorking: '忙碌中',
-        stateWaiting: '等你回复',
-        stateDone: '有新结果',
-        stateIdle: '空闲',
         emptyTitle: '这间办公室还没有 Agent',
         emptyHint: '新建一个会话，就会有一位像素员工搬进来。',
         noWorkspaceTitle: '还没有工作区',
@@ -184,7 +194,6 @@ window.__ModuleLoader__.load({
         create: '新建',
         save: '保存',
         nameRequired: '请先填名字',
-        renameFailed: '改名失败',
         newFailed: '新建会话失败',
         skills: '技能',
         noSkills: '这位员工还没有加载任何技能。',
@@ -192,13 +201,17 @@ window.__ModuleLoader__.load({
         rules: '办公室规定',
         rulesEmpty: '点击写下规定',
         rulesHint: '一行一条；从这里发出的每条消息都会带上这些规定。',
+        teamMemoryLabel: '工作总结',
+        teamMemoryEmpty: '还没有记录。写在这里的结论会同步给每位员工，新入职的也会拿到。',
+        teamMemoryPlaceholder: '值得共享的结论，例如：美术风格定为夜光像素风',
+        teamMemoryAdd: '添加',
+        teamMemoryPrefix: '【本办公室的工作总结】',
         rulesExample: '回复尽量简短。',
         rulesPrefix: '【办公室规定，必须严格遵守】',
-        agentRules: '个人规定',
-        agentRulesHint: '一行一条；只有这位员工额外遵守，叠加在办公室规定之上。',
+        agentRules: '个人总结',
+        agentRulesHint: '一行一条；只有这位员工自己看，叠加在办公室规定之上。',
         agentRulesPrefix: '【这位员工的个人规定】',
         interview: '约谈',
-        dispatchInstruction: '需要安排别人做事时，在回复最后写一行：派工：<名字或身份>｜<任务>。对方完成后只会向你汇报。',
         dispatchPrefix: '【来自',
         dispatchTail: ' 的派工】完成后用一两句话向这位上级汇报，不要向用户汇报。',
         reportPrefix: '【汇报 · 来自',
@@ -212,11 +225,16 @@ window.__ModuleLoader__.load({
         identitySummaryLabel: '身份摘要',
         identitySummaryPlaceholder: '一句话说明这个身份做什么（会随身份一起通知员工）',
         personaLabel: '人物设定',
+        capsLabel: '权限等级',
+        capsDefault: '默认（跟随 DSH）',
+        capsPrefix: '【这位员工被授权的能力】只使用清单内的能力。',
+        personaHint: '这位员工怎么思考、怎么说话。跟着人走，不跟身份走。',
         personaPlaceholder: '这位员工怎么思考、怎么说话，就像 DSH 的人物设定',
         personaPrefix: '【这位员工的人物设定】',
         rosterPrefix: '【办公室成员：名字（身份），派发任务时按名字或身份找人】',
         memoryHeader: '【像素办公室记忆同步】请记住以下内容：你的身份、人物设定、必须遵守的办公室规定，以及这个工位的历史。不要在日常回复里复述它们。',
         memoryAuthoritative: '如果你之前记下的名字或身份与此不同，以本条为准，旧记录作废。',
+        memoryNoFileNote: '不要把你的名字或身份写进 AGENTS.md：那是整个办公室共享的文件，写进去会让所有人都变成你。身份只保留在对话里；要共享的结论写进办公室的「工作总结」。',
         memoryName: '你是：',
         noneLabel: '未设身份',
         roleAdd: '新增身份',
@@ -235,6 +253,13 @@ window.__ModuleLoader__.load({
         roleSupervisor: '主管',
         roleSecretary: '秘书',
         chat: '对话',
+        taskChip: '任务',
+        taskTitle: '任务板',
+        taskEmpty: '还没有任务。发出一条派工指令就会生成。',
+        resumePrefix: '【上次未完成的任务】请继续完成，完成后照常汇报。',
+        accept: '通过',
+        reject: '退回',
+        rejectPrefix: '【验收未通过】这项任务被退回，请重做后再次汇报。',
         chatPlaceholder: '给这位员工发消息：Enter 发送，Shift+Enter 换行',
         send: '发送',
         sending: '发送中…',
@@ -245,6 +270,7 @@ window.__ModuleLoader__.load({
         you: '我',
         emptyChat: '还没有消息，先说点什么吧。',
         sendFailed: '消息没有发出去',
+        hiddenAttachment: '（这条回复只包含文件，在完整对话中查看）',
         workingNow: '正在回复…',
         crashTitle: '办公室没能画出来',
         crashHint: 'Agent 们仍在工作。回到对话后再打开办公室试试。',
@@ -252,12 +278,16 @@ window.__ModuleLoader__.load({
     }
 
     /** Artwork palette (artwork owns its own colors). */
+    const CAP_OPTIONS = ['', '仅可查看', '工作区内修改', '完全权限']
+
     const SHIRTS = ['#5b8def', '#e8734a', '#54b98a', '#b06bd1', '#e8b84a', '#e0566f', '#48b0c9']
     const HAIRS = ['#2f2a3a', '#5b3a29', '#c98b3f', '#8a8a95', '#7a3f8f']
     const SKINS = ['#f2c9a0', '#e2b184', '#c98d63', '#c07b52']
     const VARIANTS = ['plain', 'headset', 'glasses', 'cap']
     const PANTS = '#3a3f57'
     const SHOE = '#22242f'
+    /** Employees whose latest turn was an inter-employee exchange, not a reply to the user. */
+    const interAgent = new Set()
 
     /** Upper area: four evenly spaced columns, all facing the viewer. */
     const COLUMNS = [
@@ -360,6 +390,31 @@ window.__ModuleLoader__.load({
       return hash >>> 0
     }
 
+    /** One compact line from a session's token usage projection. */
+    function shortNumber(value) {
+      const number = Number(value)
+      if (!isFinite(number) || number <= 0) return '0'
+      if (number >= 1e9) return (number / 1e9).toFixed(number >= 1e10 ? 0 : 1) + 'B'
+      if (number >= 1e6) return (number / 1e6).toFixed(number >= 1e7 ? 0 : 1) + 'M'
+      if (number >= 1e3) return (number / 1e3).toFixed(number >= 1e4 ? 0 : 1) + 'K'
+      return String(Math.round(number))
+    }
+
+    function usageTotal(usage) {
+      if (usage === undefined || usage === null) return 0
+      if (typeof usage === 'number') return usage
+      if (typeof usage.totalTokens === 'number') return usage.totalTokens
+      if (typeof usage.total === 'number') return usage.total
+      if (typeof usage.inputTokens === 'number') return usage.inputTokens + (usage.outputTokens || 0)
+      return 0
+    }
+
+    /** Tokens plus the cost the session reports, if any (USD converted at 7.2). */
+    function usageText(usage) {
+      const total = usageTotal(usage)
+      return total > 0 ? shortNumber(total) + ' tok' : ''
+    }
+
     /** A stable badge colour for any identity label. */
     function identityColor(label) {
       const text = String(label || '')
@@ -428,6 +483,11 @@ window.__ModuleLoader__.load({
       if (Array.isArray(content)) {
         for (let index = 0; index < content.length; index += 1) {
           const block = content[index]
+          // Some logs carry a plain string where a text block belongs.
+          if (typeof block === 'string') {
+            if (block !== '') texts.push(block)
+            continue
+          }
           if (!block || typeof block !== 'object') continue
           const kind = block.kind !== undefined ? block.kind : block.type
           // Only visible answer text: reasoning/thinking blocks stay out of the chat.
@@ -594,11 +654,13 @@ window.__ModuleLoader__.load({
           const message = event.data && event.data.message
           const parts = blocksOf(message, true)
           sweepAttachments(event.data, parts.images, parts.files, 0)
-          if (parts.text !== '' || parts.images.length > 0) {
+          // A streamed reply may land with an empty final body: keep the deltas.
+          const finalText = parts.text !== '' ? parts.text : live
+          if (finalText !== '' || parts.images.length > 0) {
             nodes.push({
               kind: 'assistant',
               key: 'a' + event.seq,
-              paragraphs: splitParagraphs(parts.text),
+              paragraphs: splitParagraphs(finalText),
               images: parts.images,
               files: parts.files,
             })
@@ -609,13 +671,6 @@ window.__ModuleLoader__.load({
           // the conversation, so it is shown on the employee's side.
           const parts = blocksOf(event.data, true)
           sweepAttachments(event.data, parts.images, parts.files, 0)
-          const paths = []
-          fileCardsFromPaths(event.data, paths, 0)
-          for (let index = 0; index < paths.length; index += 1) {
-            const path = paths[index]
-            const name = path.split(/[\\/]/).pop()
-            if (name && !parts.files.some((file) => (file && file.name) === name)) parts.files.push({ name: name, bytes: 0, path: path })
-          }
           if (parts.images.length > 0 || parts.files.length > 0) {
             nodes.push({
               kind: 'assistant',
@@ -689,6 +744,53 @@ window.__ModuleLoader__.load({
         window.localStorage.setItem(SEATS_KEY, JSON.stringify(book))
       } catch (error) {
         /* A blocked storage keeps the order for this page only. */
+      }
+    }
+
+    /** Read the office task board (open and finished jobs). */
+    function readTasks() {
+      try {
+        const raw = window.localStorage.getItem(TASK_KEY)
+        if (!raw) return {}
+        const parsed = JSON.parse(raw)
+        return parsed && typeof parsed === 'object' ? parsed : {}
+      } catch (error) {
+        return {}
+      }
+    }
+
+    function writeTasks(book) {
+      try {
+        window.localStorage.setItem(TASK_KEY, JSON.stringify(book))
+      } catch (error) {
+        /* A blocked storage keeps the board for this page only. */
+      }
+    }
+
+    /** Identity rank: supervisor above secretary above everyone else. */
+    function rankOf(label) {
+      if (label === '主管' || label === 'Supervisor') return 3
+      if (label === '秘书' || label === 'Secretary') return 2
+      return label === '' ? 1 : 1
+    }
+
+    /** Read the shared team memory (conclusions everyone should know). */
+    function readTeamMemory() {
+      try {
+        const raw = window.localStorage.getItem(TEAM_KEY)
+        if (!raw) return {}
+        const parsed = JSON.parse(raw)
+        return parsed && typeof parsed === 'object' ? parsed : {}
+      } catch (error) {
+        return {}
+      }
+    }
+
+    function writeTeamMemory(book) {
+      try {
+        window.localStorage.setItem(TEAM_KEY, JSON.stringify(book))
+      } catch (error) {
+        /* A blocked storage keeps the memory for this page only. */
       }
     }
 
@@ -769,6 +871,26 @@ window.__ModuleLoader__.load({
         window.localStorage.setItem(MEMORY_HASH_KEY, JSON.stringify(book))
       } catch (error) {
         /* A blocked storage re-sends memory once per page load. */
+      }
+    }
+
+    /** Read each Agent's granted capabilities (a prompt-level allow list). */
+    function readCaps() {
+      try {
+        const raw = window.localStorage.getItem(CAP_KEY)
+        if (!raw) return {}
+        const parsed = JSON.parse(raw)
+        return parsed && typeof parsed === 'object' ? parsed : {}
+      } catch (error) {
+        return {}
+      }
+    }
+
+    function writeCaps(book) {
+      try {
+        window.localStorage.setItem(CAP_KEY, JSON.stringify(book))
+      } catch (error) {
+        /* A blocked storage keeps the grants for this page only. */
       }
     }
 
@@ -909,6 +1031,10 @@ window.__ModuleLoader__.load({
       parts.push(R('seatBack' + k, -8, -12, 16, 11, '#2b3350'))
       parts.push(R('seatTop' + k, -8, -12, 16, 2, '#3a4468'))
       parts.push(R('seatPost' + k, -2, -1, 4, 1, '#1b2136'))
+      // A plain sheet stuck under the mug: this Agent's personal summary.
+      parts.push(R('paper' + k, -18, -14.5, 9, 5, '#f7f3e8'))
+      parts.push(R('paperLineA' + k, -17, -13.4, 7, 1, '#c9cddb'))
+      parts.push(R('paperLineB' + k, -17, -12.2, 5, 1, '#c9cddb'))
       // Mug on the desk's left end: this Agent's own extra rules.
       parts.push(R('mug' + k, -19, -22, 5, 5, '#e05a5a'))
       parts.push(R('mugHandle' + k, -14, -21, 2, 3, '#c04343'))
@@ -957,6 +1083,10 @@ window.__ModuleLoader__.load({
       parts.push(R(k + 'sb6', 29, -42, 3, 4, '#48b0c9'))
       // Mug on the desk.
       parts.push(R(k + 'mug', -38, -46, 5, 6, '#e05a5a'))
+      // Personal summary sheet, stuck on the desk's left front.
+      parts.push(R(k + 'paper', -46, -28, 16, 10, '#f7f3e8'))
+      parts.push(R(k + 'paperLineA', -43, -25, 11, 1, '#c9cddb'))
+      parts.push(R(k + 'paperLineB', -43, -22, 8, 1, '#c9cddb'))
       return h('g', {
         key: k,
         transform: 'translate(' + def.personX + ' ' + def.feetY + ') scale(' + def.scale + ')',
@@ -1427,9 +1557,24 @@ window.__ModuleLoader__.load({
 
     /** Parse one "派工：<name or identity>｜<task>" line from a reply. */
     function parseDispatch(text) {
-      const match = /派工\s*[:：]\s*([^｜|\n]+)[｜|]\s*([^\n]+)/.exec(String(text || ''))
-      if (!match) return null
-      return { target: match[1].trim(), task: match[2].trim() }
+      const lines = String(text || '').split(/\r?\n/)
+      for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index].trim()
+        // Short form: @name：task   (also accepts the older 【派工】name｜task)
+        const short = /^@\s*([^\s:：｜|]+)\s*[:：]\s*(.+)$/.exec(line)
+        if (short) return { target: short[1].trim(), task: short[2].trim() }
+        const spaced = /^@\s*([^\s:：｜|]+)\s+([^\n]+)$/.exec(line)
+        if (spaced) return { target: spaced[1].trim(), task: spaced[2].trim() }
+        if (line.indexOf('【派工】') === 0) {
+          const rest = line.slice('【派工】'.length).replace(/^[:：]?\s*/, '')
+          const bar = rest.search(/[｜|]/)
+          if (bar < 0) continue
+          const target = rest.slice(0, bar).trim()
+          const task = rest.slice(bar + 1).trim()
+          if (target !== '' && task !== '') return { target: target, task: task }
+        }
+      }
+      return null
     }
 
     /** A cat or a golden retriever, drawn from the same pixel vocabulary. */
@@ -1558,6 +1703,19 @@ window.__ModuleLoader__.load({
         onClick: () => { onOpenEditor(seat) },
         onDragOver: onDragOver,
         onDrop: onDrop,
+      }))
+      parts.push(h('button', {
+        type: 'button',
+        className: 'po-paperBtn',
+        title: t('agentRules'),
+        'aria-label': t('agentRules'),
+        style: {
+          left: ((def.personX + (def.kind === 'big' ? -46 : -18) * (def.scale || 1)) / ROOM_W) * 100 + '%',
+          top: ((def.feetY + (def.kind === 'big' ? -28 : -14.5) * (def.scale || 1)) / ROOM_H) * 100 + '%',
+          width: ((def.kind === 'big' ? 16 : 9) * (def.scale || 1) / ROOM_W) * 100 + '%',
+          height: ((def.kind === 'big' ? 10 : 5) * (def.scale || 1) / ROOM_H) * 100 + '%',
+        },
+        onClick: (event) => { event.stopPropagation(); onOpenMug(seat) },
       }))
       if (agent) {
         parts.push(h('button', {
@@ -1773,6 +1931,50 @@ window.__ModuleLoader__.load({
               }))
             })()
             : null),
+        scene.letters.map((letter) => h('span', {
+          key: letter.id,
+          className: 'po-letter',
+          'data-kind': letter.kind,
+          'aria-hidden': 'true',
+          style: {
+            '--x0': letter.x0 + '%',
+            '--y0': letter.y0 + '%',
+            '--xm': letter.xm + '%',
+            '--ym': letter.ym + '%',
+            '--x1': letter.x1 + '%',
+            '--y1': letter.y1 + '%',
+          },
+        }, '✉')),
+        h('button', {
+          type: 'button',
+          className: 'po-taskChip',
+          onClick: scene.toggleTasks,
+        }, t('taskChip') + ' ' + scene.tasks.filter((task) => task.status === 'open').length),
+        scene.showTasks
+          ? h('div', { className: 'po-taskPanel' },
+            h('div', { className: 'po-taskHead' },
+              h('span', null, t('taskTitle')),
+              h('button', { type: 'button', className: 'po-iconBtn', onClick: scene.toggleTasks }, '✕')),
+            scene.tasks.length === 0
+              ? h('div', { className: 'po-taskEmpty' }, t('taskEmpty'))
+              : h('div', { className: 'po-taskList' },
+                scene.tasks.slice().reverse().map((task) => {
+                  const owner = scene.seats.find((seat) => seat.agent && seat.agent.id === task.to)
+                  return h('div', { className: 'po-taskRow', key: task.id },
+                    h('i', { className: 'po-taskDot', 'data-done': task.status === 'done' || task.status === 'accepted', 'data-accepted': task.status === 'accepted' }),
+                    h('div', { className: 'po-taskBody' },
+                      h('div', { className: 'po-taskName' }, (owner && owner.agent ? owner.agent.name : '?') + ' · ' + task.text),
+                      task.status === 'done' && task.report
+                        ? h('div', { className: 'po-taskReport' }, task.report)
+                        : null,
+                      task.status === 'done'
+                        ? h('div', { className: 'po-taskActions' },
+                          h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: () => scene.acceptTask(task.id) }, t('accept')),
+                          h('button', { type: 'button', className: 'po-btn', onClick: () => scene.rejectTask(task.id) }, t('reject')))
+                        : null),
+                    h('button', { type: 'button', className: 'po-memoDrop', onClick: () => scene.dropTask(task.id) }, '✕'))
+                })))
+          : null,
         scene.notice
           ? h('div', { className: 'po-sceneNotice' },
             h('span', { className: 'po-sceneNoticeTitle' }, scene.notice.title),
@@ -1884,10 +2086,26 @@ window.__ModuleLoader__.load({
           onOpen: onOpen,
         }))
       }
-      for (let index = 0; index < node.files.length; index += 1) {
-        body.push(h(FileCard, { key: 'f' + index, file: node.files[index] }))
+      // A file whose name already shows as an image thumbnail is not shown twice.
+      const imageNames = []
+      for (let index = 0; index < node.images.length; index += 1) {
+        const name = node.images[index] && node.images[index].name
+        if (typeof name === 'string' && name !== '') imageNames.push(name)
       }
-      if (body.length === 0) return null
+      for (let index = 0; index < node.files.length; index += 1) {
+        const file = node.files[index]
+        const name = (file && file.name) || ''
+        if (imageNames.indexOf(name) >= 0) continue
+        // Image file names stay out of the conversation entirely.
+        if (/\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(name)) continue
+        body.push(h(FileCard, { key: 'f' + index, file: file, onOpen: onOpen }))
+      }
+      if (body.length === 0) {
+        const produced = node.images.length > 0 || node.files.length > 0
+        if (!produced) return null
+        // The turn only produced files whose names we hide: say so instead of a gap.
+        body.push(h('div', { key: 'silent', className: 'po-bubble po-bubbleMuted' }, t('hiddenAttachment')))
+      }
       return h('div', { className: 'po-line', 'data-side': isUser ? 'user' : 'agent' },
         h('span', { className: 'po-lineAvatar', title: isUser ? userLabel : (agent ? agent.name : '') },
           isUser ? h(Avatar, { palette: USER_PALETTE }) : (agent ? h(Avatar, { palette: agent.palette }) : null)),
@@ -1895,7 +2113,7 @@ window.__ModuleLoader__.load({
     }
 
     /** Compact chat with one Agent, hosted inside the office. */
-    function ChatPanel({ agent, sessions, t, role, imageUrlOf, uploadFile, onSeen, onClose, onOpenFull }) {
+    function ChatPanel({ agent, sessions, t, role, imageUrlOf, uploadFile, onSeen, onClose, onOpenFull, onOpenPersona }) {
       const [opened, setOpened] = React.useState({ reference: null, error: null })
       const [draft, setDraft] = React.useState('')
       const [attachments, setAttachments] = React.useState(EMPTY)
@@ -1971,6 +2189,7 @@ window.__ModuleLoader__.load({
           onSeen(agentId, agent && typeof agent.updatedAt === 'number' ? agent.updatedAt : 0)
         }
       }, [agentId, agent, view.nodes.length, view.live.length, onSeen])
+
 
       React.useEffect(() => {
         const element = listRef.current
@@ -2065,9 +2284,42 @@ window.__ModuleLoader__.load({
         }
       }
 
+      const usageLine = React.useMemo(() => {
+        const window = binding && binding.eventSource ? binding.eventSource.getSnapshot() : null
+        const entries = window && Array.isArray(window.entries) ? window.entries : EMPTY
+        let total = 0
+        const seen = []
+        const collect = (value, depth) => {
+          if (depth > 4 || value === null || typeof value !== 'object') return
+          if (Array.isArray(value)) { for (let i = 0; i < value.length; i += 1) collect(value[i], depth + 1); return }
+          if (typeof value.totalTokens === 'number') { total += value.totalTokens; return }
+          if (typeof value.inputTokens === 'number' || typeof value.outputTokens === 'number') {
+            total += (value.inputTokens || 0) + (value.outputTokens || 0)
+            return
+          }
+          for (const key of Object.keys(value)) collect(value[key], depth + 1)
+        }
+        for (let index = 0; index < entries.length; index += 1) {
+          const entry = entries[index]
+          if (!entry || !entry.event || entry.type === 'transient') continue
+          collect(entry.event.data, 0)
+        }
+        if (total <= 0) {
+          const summary = agent && agent.summary && agent.summary.projectionValues
+          return usageText(summary ? summary.tokenUsage : undefined)
+        }
+        return shortNumber(total) + ' tok'
+      }, [binding, agent])
+
       const stateOfAgent = agent ? agent.state : 'idle'
       const head = h('div', { className: 'po-chatHead' },
-        h('span', { className: 'po-avatarWrap' },
+        h('button', {
+          type: 'button',
+          className: 'po-avatarWrap po-avatarBtn',
+          title: t('personaLabel'),
+          'aria-label': t('personaLabel'),
+          onClick: () => { if (agent && typeof onOpenPersona === 'function') onOpenPersona(agent.id) },
+        },
           h('span', { className: 'po-avatarBig' }, agent ? h(Avatar, { palette: agent.palette }) : null),
           agent
             ? h('i', {
@@ -2085,6 +2337,7 @@ window.__ModuleLoader__.load({
               }, t(role === 'supervisor' ? 'roleSupervisor' : 'roleSecretary'))
               : null,
             agent ? agent.name : '')),
+        h('span', { className: 'po-chatUsage' }, usageLine || '—'),
         h('span', { className: 'po-chatTools' },
           h('button', {
             type: 'button',
@@ -2279,11 +2532,15 @@ window.__ModuleLoader__.load({
       const [skillPanel, setSkillPanel] = React.useState(null)
       const [rulesBook, setRulesBook] = React.useState(readRules)
       const [rulesEditor, setRulesEditor] = React.useState(null)
+      const [teamBook, setTeamBook] = React.useState(readTeamMemory)
+      const [teamDraft, setTeamDraft] = React.useState('')
       const [agentRulesBook, setAgentRulesBook] = React.useState(readAgentRules)
       const [seatMemoryBook, setSeatMemoryBook] = React.useState(readSeatMemory)
       const [personaBook, setPersonaBook] = React.useState(readPersonas)
+      const [capBook, setCapBook] = React.useState(readCaps)
       const namesRef = React.useRef(readNames())
       const [mugEditor, setMugEditor] = React.useState(null)
+      const [personaEditor, setPersonaEditor] = React.useState(null)
       const [quip, setQuip] = React.useState(null)
       const [cat, setCat] = React.useState({ x: 80, y: 70, pose: 'sit', facing: 1 })
       const [dog, setDog] = React.useState({ x: 120, y: 90, pose: 'walk', facing: 1 })
@@ -2293,6 +2550,9 @@ window.__ModuleLoader__.load({
       const markHover = (value) => { hoveredRef.current = value }
       const sceneRef = React.useRef(null)
       const interviewRef = React.useRef(null)
+      const resumedRef = React.useRef({})
+      const taskActionsRef = React.useRef({})
+      const dispatchedRef = React.useRef({})
       // Agent-organisation state: who is doing a delegated job for whom, and the
       // last finished run already handled.
       const delegatedRef = React.useRef({})
@@ -2371,6 +2631,26 @@ window.__ModuleLoader__.load({
       }, [items, chosen, byId])
 
       const activeId = active ? active.workspaceId : null
+      const teamEntries = (activeId && teamBook[activeId]) || EMPTY
+      const addTeamEntry = (text, by) => {
+        const value = String(text || '').trim()
+        if (value === '' || !activeId) return
+        const next = Object.assign({}, teamBook)
+        const list = (next[activeId] || EMPTY).slice(-40)
+        list.push({ text: value.slice(0, 400), at: Date.now(), by: by || '' })
+        next[activeId] = list
+        writeTeamMemory(next)
+        setTeamBook(next)
+      }
+      const removeTeamEntry = (index) => {
+        if (!activeId) return
+        const next = Object.assign({}, teamBook)
+        const list = (next[activeId] || EMPTY).slice()
+        list.splice(index, 1)
+        next[activeId] = list
+        writeTeamMemory(next)
+        setTeamBook(next)
+      }
 
       /** Direct children of one Session, from the parent's catalog plus listed rows. */
       const childrenOf = React.useCallback((parentId) => {
@@ -2466,6 +2746,7 @@ window.__ModuleLoader__.load({
           const status = statuses && typeof statuses.get === 'function' ? statuses.get(agent.id) : undefined
           const running = isRunning(agent.summary, status)
           next.set(agent.id, running)
+          if (interAgent.has(agent.id)) continue
           if (previous.get(agent.id) === true && !running && !newsBook[agent.id]) fresh.push(agent.id)
         }
         runningRef.current = next
@@ -2645,6 +2926,7 @@ window.__ModuleLoader__.load({
         }, (error) => { close(); reject(error) })
       }), [sessions])
 
+
       const closeEditor = React.useCallback(() => { setEditor(null) }, [])
 
       React.useEffect(() => {
@@ -2696,6 +2978,13 @@ window.__ModuleLoader__.load({
               return next
             })
           }
+          const caps = String(editor.caps || '').trim() === '' ? EMPTY : [String(editor.caps || '').trim()]
+          setCapBook((previous) => {
+            const next = Object.assign({}, previous)
+            next[editor.agentId] = caps
+            writeCaps(next)
+            return next
+          })
           const persona = String(editor.persona || '')
           setPersonaBook((previous) => {
             const next = Object.assign({}, previous)
@@ -2799,6 +3088,104 @@ window.__ModuleLoader__.load({
         setRulesEditor(null)
       }, [rulesEditor, rulesBook, activeId])
 
+      const [taskBook, setTaskBook] = React.useState(readTasks)
+      const [showTasks, setShowTasks] = React.useState(false)
+      const [letters, setLetters] = React.useState([])
+      const tasks = (activeId && taskBook[activeId]) || EMPTY
+      const addTask = React.useCallback((task) => {
+        if (!activeId) return
+        setTaskBook((previous) => {
+          const list = (previous[activeId] || EMPTY).slice(-60)
+          list.push(Object.assign({ id: 'j' + Date.now() + Math.random().toString(36).slice(2, 6), at: Date.now() }, task))
+          const next = Object.assign({}, previous)
+          next[activeId] = list
+          writeTasks(next)
+          return next
+        })
+      }, [activeId])
+      const closeTask = React.useCallback((agentId, report) => {
+        if (!activeId) return
+        setTaskBook((previous) => {
+          const list = (previous[activeId] || EMPTY).slice()
+          for (let index = list.length - 1; index >= 0; index -= 1) {
+            const task = list[index]
+            if (task.to === agentId && task.status === 'open') {
+              list[index] = Object.assign({}, task, { status: 'done', report: String(report || '').slice(0, 300), doneAt: Date.now() })
+              break
+            }
+          }
+          const next = Object.assign({}, previous)
+          next[activeId] = list
+          writeTasks(next)
+          return next
+        })
+      }, [activeId])
+      const dropTask = React.useCallback((id) => {
+        if (!activeId) return
+        setTaskBook((previous) => {
+          const next = Object.assign({}, previous)
+          next[activeId] = (previous[activeId] || EMPTY).filter((task) => task.id !== id)
+          writeTasks(next)
+          return next
+        })
+      }, [activeId])
+
+      /** One envelope flying between two desks, purely visual. */
+      const flyLetter = (fromId, toId, kind) => {
+        const from = seatPlan.find((entry) => entry.agent && entry.agent.id === fromId)
+        const to = seatPlan.find((entry) => entry.agent && entry.agent.id === toId)
+        if (!from || !to) return
+        const x0 = (from.def.alertX / ROOM_W) * 100
+        const y0 = (from.def.alertY / ROOM_H) * 100
+        const x1 = (to.def.alertX / ROOM_W) * 100
+        const y1 = (to.def.alertY / ROOM_H) * 100
+        const id = 'l' + Date.now() + Math.random().toString(36).slice(2, 6)
+        setLetters((previous) => previous.concat([{
+          id: id,
+          kind: kind || 'task',
+          x0: x0, y0: y0,
+          xm: (x0 + x1) / 2,
+          ym: Math.min(y0, y1) - 10,
+          x1: x1, y1: y1,
+        }]).slice(-6))
+        window.setTimeout(() => {
+          setLetters((previous) => previous.filter((letter) => letter.id !== id))
+        }, 1500)
+      }
+
+      // Resume jobs that were open when the office last closed, once per mount.
+      React.useEffect(() => {
+        if (!activeId) return
+        const open = tasks.filter((task) => task.status === 'open'
+          && !resumedRef.current[task.id]
+          && Date.now() - (task.at || 0) > 30000)
+        if (open.length === 0) return
+        for (let index = 0; index < open.length; index += 1) {
+          const task = open[index]
+          resumedRef.current[task.id] = true
+          promptAgent(task.to, t('resumePrefix') + '\n' + task.text)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [activeId])
+
+      const openPersona = React.useCallback((agentId) => {
+        const agent = agents.find((item) => item.id === agentId)
+        if (!agent) return
+        setPersonaEditor({ agentId: agentId, name: agent.name, text: personaBook[agentId] || '' })
+      }, [agents, personaBook])
+      const savePersona = React.useCallback(() => {
+        if (personaEditor === null) return
+        const text = String(personaEditor.text || '')
+        setPersonaBook((previous) => {
+          const next = Object.assign({}, previous)
+          next[personaEditor.agentId] = text
+          writePersonas(next)
+          return next
+        })
+        if (interviewRef.current) interviewRef.current(personaEditor.agentId, (agentRulesBook[personaEditor.agentId] || EMPTY).join('\n'), { persona: text })
+        setPersonaEditor(null)
+      }, [personaEditor, agentRulesBook, t])
+
       const openMug = React.useCallback((seat) => {
         const agent = seat.agent
         if (!agent) return
@@ -2865,11 +3252,24 @@ window.__ModuleLoader__.load({
         lines.push(t('memoryName') + ' ' + agent.name + (identity !== '' && identity !== agent.name ? '（' + identity + '）' : ''))
         const identitySummary = next.summary !== undefined ? String(next.summary || '').trim() : summaryOfIdentity(identity)
         if (identitySummary !== '') lines.push(t('identitySummaryLabel') + ' ' + identitySummary)
+        const caps = capBook[agentId] || EMPTY
+        if (caps.length > 0) lines.push(t('capsPrefix') + '\n' + caps.map((line) => '- ' + line).join('\n'))
         const persona = next.persona !== undefined ? String(next.persona || '').trim() : String(personaBook[agentId] || '').trim()
         if (persona !== '') lines.push(t('personaPrefix') + '\n' + persona)
         if (officeRules.length > 0) lines.push(t('rulesPrefix') + '\n' + officeRules.map((line, i) => (i + 1) + '. ' + line).join('\n'))
+        if (teamEntries.length > 0) {
+          const recent = teamEntries.slice(-12)
+          let text = ''
+          for (let index = recent.length - 1; index >= 0; index -= 1) {
+            const line = '- ' + recent[index].text
+            if (text.length + line.length > 1200) break
+            text = line + '\n' + text
+          }
+          lines.push(t('teamMemoryPrefix') + '\n' + text.trim())
+        }
         const own = String(personalText || '').split('\n').map((line) => line.trim()).filter((line) => line !== '')
         if (own.length > 0) lines.push(t('agentRulesPrefix') + '\n' + own.map((line, i) => (i + 1) + '. ' + line).join('\n'))
+        lines.push(t('memoryNoFileNote'))
         lines.push(t('memoryAuthoritative'))
         const text = lines.join('\n\n')
         let reference = null
@@ -3139,6 +3539,13 @@ window.__ModuleLoader__.load({
         dog: dog,
         petSay: petSay,
         stroll: stroll,
+        tasks: tasks,
+        showTasks: showTasks,
+        letters: letters,
+        toggleTasks: () => setShowTasks((value) => !value),
+        dropTask: dropTask,
+        acceptTask: (id) => { if (taskActionsRef.current.acceptTask) taskActionsRef.current.acceptTask(id) },
+        rejectTask: (id) => { if (taskActionsRef.current.rejectTask) taskActionsRef.current.rejectTask(id) },
       }
 
       /** The supervisor identity ranks above everyone; the secretary ranks above staff. */
@@ -3170,7 +3577,7 @@ window.__ModuleLoader__.load({
         try {
           reference = sessions.retain(agentId, { source: RETAIN_SOURCE })
         } catch (error) {
-          resolve('')
+          resolve({ text: '', seq: 0 })
           return
         }
         const done = () => { try { reference.release() } catch (error) { /* released */ } }
@@ -3179,20 +3586,70 @@ window.__ModuleLoader__.load({
           const window = binding && binding.eventSource ? binding.eventSource.getSnapshot() : null
           const entries = window && Array.isArray(window.entries) ? window.entries : EMPTY
           let text = ''
+          let seq = 0
           for (let index = entries.length - 1; index >= 0; index -= 1) {
             const event = entries[index] && entries[index].event
             if (!event || event.type !== 'assistant/message') continue
             const parts = blocksOf(event.data && event.data.message, true)
             text = parts.text
+            seq = typeof event.seq === 'number' ? event.seq : 0
             break
           }
           done()
-          resolve(text)
-        }, () => { done(); resolve('') })
+          resolve({ text: text, seq: seq })
+        }, () => { done(); resolve({ text: '', seq: 0 }) })
       }), [sessions])
 
-      // When a run finishes: a delegatee reports to its superior, a superior's
-      // own reply may carry a dispatch line for a subordinate.
+      const acceptTask = React.useCallback((id) => {
+        if (!activeId) return
+        // A passed job leaves a one-line trace in the shared team summary.
+        const accepted = (activeId && taskBook[activeId] ? taskBook[activeId] : EMPTY).find((item) => item.id === id)
+        if (accepted) {
+          const summary = '【已完成】' + accepted.text + (accepted.report ? ' —— ' + String(accepted.report).slice(0, 120) : '')
+          setTeamBook((previous) => {
+            const next = Object.assign({}, previous)
+            const list = (next[activeId] || EMPTY).slice(-40)
+            list.push({ text: summary.slice(0, 400), at: Date.now(), by: accepted.to })
+            next[activeId] = list
+            writeTeamMemory(next)
+            return next
+          })
+        }
+        setTaskBook((previous) => {
+          const next = Object.assign({}, previous)
+          next[activeId] = (previous[activeId] || EMPTY).map((task) => (task.id === id
+            ? Object.assign({}, task, { status: 'accepted', acceptedAt: Date.now() })
+            : task))
+          writeTasks(next)
+          return next
+        })
+      }, [activeId, taskBook])
+      const rejectTask = React.useCallback((id) => {
+        if (!activeId) return
+        const task = (activeId && taskBook[activeId] ? taskBook[activeId] : EMPTY).find((item) => item.id === id)
+        setTaskBook((previous) => {
+          const next = Object.assign({}, previous)
+          next[activeId] = (previous[activeId] || EMPTY).map((item) => (item.id === id
+            ? Object.assign({}, item, { status: 'open', at: Date.now(), report: '' })
+            : item))
+          writeTasks(next)
+          return next
+        })
+        if (task) {
+          resumedRef.current[id] = true
+          promptAgent(task.to, t('rejectPrefix') + '\n' + task.text)
+        }
+      }, [activeId, taskBook, promptAgent, t])
+      taskActionsRef.current.acceptTask = acceptTask
+      taskActionsRef.current.rejectTask = rejectTask
+
+
+
+
+
+      // Dispatch protocol: any top-level conversation may hand a job to one of its
+      // subordinates with a line: @name：task. Jobs are written to a local board so
+      // they survive a restart; the finished job reports back to the dispatcher.
       React.useEffect(() => {
         const previous = handledRef.current
         for (let index = 0; index < agents.length; index += 1) {
@@ -3201,30 +3658,48 @@ window.__ModuleLoader__.load({
           const running = isRunning(agent.summary, status)
           const stamp = agent.updatedAt || 0
           if (running || stamp === 0 || previous[agent.id] === stamp) continue
-          // Only superiors and Agents holding a delegated job are inspected; every
-          // other finished run is left alone, which keeps the retain traffic down.
-          if (!delegatedRef.current[agent.id] && !isSuperior(agent)) { previous[agent.id] = stamp; continue }
           previous[agent.id] = stamp
-          lastReply(agent.id).then((text) => {
+          const job = delegatedRef.current[agent.id]
+          if (!job) {
+            if (agent.parentId) continue
+            lastReply(agent.id).then((reply) => {
+              const text = reply.text
+              if (text === '' || reply.seq === 0 || dispatchedRef.current[agent.id] === reply.seq) return
+              dispatchedRef.current[agent.id] = reply.seq
+              const dispatch = parseDispatch(text)
+              if (!dispatch) return
+              const target = agents.find((item) => item.id !== agent.id
+                && (item.name === dispatch.target || (officeLabels[item.id] || '') === dispatch.target))
+              if (!target) return
+              // Only a subordinate may receive work: rank must be strictly lower.
+              const senderRank = rankOf(officeLabels[agent.id] || '')
+              const targetRank = rankOf(officeLabels[target.id] || '')
+              // Only downwards: a supervisor may task anyone below, a peer only a
+              // peer, and nobody may task a supervisor.
+              if (targetRank > senderRank) return
+              if (targetRank === senderRank && senderRank !== 1) return
+              interAgent.add(agent.id)
+              interAgent.add(target.id)
+              delegatedRef.current[target.id] = { from: agent.id, task: dispatch.task }
+              addTask({ from: agent.id, to: target.id, text: dispatch.task, status: 'open' })
+              flyLetter(agent.id, target.id, 'task')
+              promptAgent(target.id, t('dispatchPrefix') + ' ' + agent.name + t('dispatchTail') + '\n' + dispatch.task)
+            })
+            continue
+          }
+          delete delegatedRef.current[agent.id]
+          lastReply(agent.id).then((reply) => {
+            const text = reply.text
             if (text === '') return
-            const job = delegatedRef.current[agent.id]
-            if (job) {
-              delete delegatedRef.current[agent.id]
-              const reportTo = job.from
-              if (reportTo) promptAgent(reportTo, t('reportPrefix') + ' ' + agent.name + ']\n' + text)
-              return
+            closeTask(agent.id, text)
+            if (job.from) {
+              flyLetter(agent.id, job.from, 'report')
+              promptAgent(job.from, t('reportPrefix') + ' ' + agent.name + ']\n' + text)
             }
-            if (!isSuperior(agent)) return
-            const dispatch = parseDispatch(text)
-            if (!dispatch) return
-            const target = agents.find((item) => item.id !== agent.id
-              && (item.name === dispatch.target || (officeLabels[item.id] || '') === dispatch.target))
-            if (!target) return
-            delegatedRef.current[target.id] = { from: agent.id, task: dispatch.task }
-            promptAgent(target.id, t('dispatchPrefix') + ' ' + agent.name + t('dispatchTail') + '\n' + dispatch.task)
           })
         }
-      }, [agents, statuses, lastReply, promptAgent, officeLabels, t])
+      }, [agents, statuses, lastReply, promptAgent, officeLabels, t, addTask, closeTask])
+
 
       // Every so often an employee with working sub-agents teases about the
       // outsourcing. Display only: nothing enters the conversation.
@@ -3451,6 +3926,7 @@ window.__ModuleLoader__.load({
           onSeen: markSeen,
           onClose: () => { setSelectedId(null) },
           onOpenFull: (id) => { if (typeof props.openAgent === 'function') props.openAgent(id) },
+          onOpenPersona: openPersona,
         })))
         : null
 
@@ -3481,19 +3957,16 @@ window.__ModuleLoader__.load({
         : (String(editor.custom || '').trim() !== '' ? 'custom:' + editor.custom : (editor.role || ''))
 
       const pickIdentity = (value) => {
-        // Clicking the active identity again removes it from this employee.
-        if (roleSelected === value) {
-          setEditorField('custom', '')
-          setEditorField('role', '')
-          return
-        }
         if (value.indexOf('custom:') === 0) {
-          setEditorField('custom', value.slice('custom:'.length))
+          const label = value.slice('custom:'.length)
+          setEditorField('custom', label)
           setEditorField('role', 'custom')
+          setEditorField('summary', summaryOfIdentity(label))
           return
         }
         setEditorField('custom', '')
         setEditorField('role', value)
+        setEditorField('summary', summaryOfIdentity(value === 'supervisor' ? t('roleSupervisor') : t('roleSecretary')))
       }
 
       const editorDialog = editor === null
@@ -3521,7 +3994,7 @@ window.__ModuleLoader__.load({
                 onClick: () => { pickIdentity(card.value) },
               },
               h('span', { className: 'po-roleCardTitle' }, card.title),
-              h('span', { className: 'po-roleCardHint' }, card.hint)))),
+              h('span', { className: 'po-roleCardHint' }, card.value.indexOf('custom:') === 0 ? summaryOfIdentity(card.title) : card.hint)))),
             h('div', { className: 'po-roleCustom' },
               h('input', {
                 className: 'po-editorInput',
@@ -3571,35 +4044,13 @@ window.__ModuleLoader__.load({
               placeholder: t('identitySummaryPlaceholder'),
               onChange: (event) => { setEditorField('summary', event.target.value) },
             }),
-            h('span', { className: 'po-editorLabel' }, t('personaLabel')),
-            h('textarea', {
-              className: 'po-editorInput po-rulesArea',
-              rows: 5,
-              value: editor.persona || '',
-              placeholder: t('personaPlaceholder'),
-              onChange: (event) => { setEditorField('persona', event.target.value) },
-            }),
-            editor.error ? h('p', { className: 'po-editorError' }, editor.error) : null,
-            editor.agentId ? h('div', { className: 'po-roleDanger' },
-              editor.confirmDismiss
-                ? h('span', { className: 'po-roleDangerRow' },
-                  h('span', null, t('dismissConfirm')),
-                  h('button', {
-                    type: 'button',
-                    className: 'po-dangerBtn',
-                    onClick: () => { dismissAgent(editor.agentId, editor.seatKey) },
-                  }, t('dismissYes')),
-                  h('button', {
-                    type: 'button',
-                    className: 'po-btn',
-                    onClick: () => { setEditorField('confirmDismiss', false) },
-                  }, t('cancel')))
-                : h('button', {
-                  type: 'button',
-                  className: 'po-dangerBtn',
-                  onClick: () => { setEditorField('confirmDismiss', true) },
-                }, t('dismiss')))
-              : null,
+            h('span', { className: 'po-editorLabel' }, t('capsLabel')),
+            h('select', {
+              className: 'po-editorInput',
+              value: editor.caps || '',
+              onChange: (event) => { setEditorField('caps', event.target.value) },
+            }, CAP_OPTIONS.map((option) => h('option', { key: option || 'default', value: option },
+              option === '' ? t('capsDefault') : option))),
             h('div', { className: 'po-editorActions' },
               h('button', { type: 'button', className: 'po-btn', onClick: closeEditor }, t('cancel')),
               h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: saveEditor }, t('save'))))
@@ -3646,22 +4097,79 @@ window.__ModuleLoader__.load({
           h('div', { className: 'po-editorActions' },
             h('button', { type: 'button', className: 'po-btn', onClick: () => { setSkillPanel(null) } }, t('close')))))
 
+      const personaDialog = personaEditor === null
+        ? null
+        : h('div', {
+          className: 'po-editorBackdrop po-personaBackdrop',
+          onClick: (event) => { if (event.target === event.currentTarget) setPersonaEditor(null) },
+        },
+        h('div', { className: 'po-editor po-personaDialog po-personaPop', role: 'dialog', 'aria-modal': 'true' },
+          h('h2', { className: 'po-editorTitle' }, t('personaLabel') + ' · ' + personaEditor.name),
+          h('p', { className: 'po-editorLabel' }, t('personaHint')),
+          h('textarea', {
+            className: 'po-editorInput',
+            rows: 10,
+            autoFocus: true,
+            value: personaEditor.text,
+            placeholder: t('personaPlaceholder'),
+            onChange: (event) => setPersonaEditor({ agentId: personaEditor.agentId, name: personaEditor.name, text: event.target.value }),
+          }),
+          h('div', { className: 'po-editorActions' },
+            h('button', { type: 'button', className: 'po-btn', onClick: () => setPersonaEditor(null) }, t('cancel')),
+            h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: savePersona }, t('save')))))
+
       const rulesDialog = rulesEditor === null
         ? null
         : h('div', {
           className: 'po-modal po-editorBackdrop',
           onClick: (event) => { if (event.target === event.currentTarget) setRulesEditor(null) },
         },
-        h('div', { className: 'po-editor po-rules', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('rules') },
+        h('div', { className: 'po-editor po-rules po-editorWide', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('rules') },
           h('h2', { className: 'po-editorTitle' }, t('rules')),
-          h('p', { className: 'po-editorLabel' }, t('rulesHint')),
-          h('textarea', {
-            className: 'po-editorInput po-rulesArea',
-            value: rulesEditor.text,
-            rows: 8,
-            autoFocus: true,
-            onChange: (event) => { setRulesEditor({ text: event.target.value, busy: false, error: '' }) },
-          }),
+          h('div', { className: 'po-twoCol' },
+            h('div', { className: 'po-col' },
+              h('p', { className: 'po-editorLabel' }, t('rulesHint')),
+              h('textarea', {
+                className: 'po-editorInput po-rulesArea',
+                value: rulesEditor.text,
+                autoFocus: true,
+                onChange: (event) => { setRulesEditor({ text: event.target.value, busy: false, error: '' }) },
+              })),
+            h('div', { className: 'po-col' },
+              h('p', { className: 'po-editorLabel' }, t('teamMemoryLabel')),
+              teamEntries.length === 0
+                ? h('p', { className: 'po-editorHint' }, t('teamMemoryEmpty'))
+                : h('div', { className: 'po-memoList' },
+                  teamEntries.slice().reverse().map((entry, index) => {
+                    const writer = entry.by ? agents.find((item) => item.id === entry.by) : null
+                    return h('div', { className: 'po-memoRow', key: 'm' + index },
+                      writer
+                        ? h('span', { className: 'po-memoWho' },
+                          h(Avatar, { palette: writer.palette, size: 18 }),
+                          h('span', {
+                            className: 'po-memoTag',
+                            style: { background: identityColor(officeLabels[writer.id] || '') || '#5b6278' },
+                          }, officeLabels[writer.id] || t('noneLabel')))
+                        : null,
+                      h('span', { className: 'po-memoText' }, entry.text),
+                    h('button', {
+                      type: 'button',
+                      className: 'po-memoDrop',
+                      onClick: () => removeTeamEntry(teamEntries.length - 1 - index),
+                    }, '✕'))
+                  })),
+              h('div', { className: 'po-memoAdd' },
+                h('input', {
+                  className: 'po-editorInput',
+                  value: teamDraft,
+                  placeholder: t('teamMemoryPlaceholder'),
+                  onChange: (event) => setTeamDraft(event.target.value),
+                }),
+                h('button', {
+                  type: 'button',
+                  className: 'po-btn',
+                  onClick: () => { addTeamEntry(teamDraft, selectedId || ''); setTeamDraft('') },
+                }, t('teamMemoryAdd'))))),
           h('div', { className: 'po-editorActions' },
             h('button', { type: 'button', className: 'po-btn', onClick: () => { setRulesEditor(null) } }, t('cancel')),
             h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: saveRules }, t('save')))))
@@ -3703,7 +4211,7 @@ window.__ModuleLoader__.load({
       h('div', { className: 'po-sceneCol', ref: sceneRef },
         h(Stage, { scene: scene, t: t, size: stageSize })))
 
-      return h('section', { className: 'po-page' }, offices, body, editorDialog, skillsDialog, rulesDialog, mugDialog, modal)
+      return h('section', { className: 'po-page' }, offices, body, editorDialog, skillsDialog, rulesDialog, mugDialog, personaDialog, modal)
     }
 
     /** Page shell: styles, error containment, body. */
@@ -3761,11 +4269,8 @@ window.__ModuleLoader__.load({
       '.po-roleAddBtn:hover{background:var(--dsw-alias-bg-layer-2);}',
       '.po-roleDelete{align-self:flex-start;margin-top:2px;padding:0;border:0;background:transparent;',
       'color:#e05a5a;font:inherit;font-size:11px;line-height:16px;cursor:pointer;text-decoration:underline;}',
-      '.po-roleDanger{margin-top:2px;padding-top:8px;border-top:1px solid var(--dsw-alias-border-l1);',
       'display:flex;justify-content:flex-start;}',
-      '.po-roleDangerRow{display:flex;align-items:center;gap:6px;font-size:11px;line-height:16px;',
       'color:var(--dsw-alias-label-secondary);flex-wrap:wrap;}',
-      '.po-dangerBtn{height:28px;padding:0 10px;border-radius:8px;border:1px solid rgba(224,90,90,.5);',
       'background:transparent;color:#e05a5a;font:inherit;font-size:12px;cursor:pointer;}',
       '.po-dangerBtn:hover{background:rgba(224,90,90,.14);}',
       '.po-skills{width:min(380px,100%);}',
@@ -3812,6 +4317,9 @@ window.__ModuleLoader__.load({
       '.po-shelfBtn{position:absolute;z-index:3;padding:0;border:0;background:transparent;cursor:pointer;',
       'border-radius:3px;pointer-events:auto;}',
       '.po-shelfBtn:hover{background:rgba(255,235,180,.18);box-shadow:0 0 0 1px rgba(255,235,180,.5) inset;}',
+      '.po-paperBtn{position:absolute;z-index:3;padding:0;border:0;border-radius:2px;background:transparent;pointer-events:auto;',
+      'cursor:pointer;}',
+      '.po-paperBtn:hover{outline:1px dashed rgba(247,243,232,.7);}',
       '.po-mugBtn{position:absolute;z-index:3;padding:0;border:0;background:transparent;cursor:pointer;',
       'border-radius:3px;pointer-events:auto;}',
       '.po-mugBtn:hover{background:rgba(224,90,90,.25);box-shadow:0 0 0 1px rgba(224,90,90,.8) inset;}',
@@ -3914,15 +4422,21 @@ window.__ModuleLoader__.load({
       '.po-editorGap{flex:1 1 auto;}',
       '.po-chat{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;border-radius:12px;',
       'border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);overflow:hidden;}',
-      '.po-avatarWrap{position:relative;flex:none;width:44px;height:44px;}',
+      '.po-avatarWrap{position:relative;flex:none;width:44px;height:44px;border:0;background:transparent;padding:0;}',
+      '.po-avatarBtn{cursor:pointer;border-radius:12px;}',
+      '.po-personaBackdrop{position:fixed;inset:0;z-index:299;background:transparent;}',
+      '.po-avatarBtn:hover{box-shadow:0 0 0 2px var(--dsw-alias-brand-primary,#5b8def);}',
+      '.po-personaDialog{width:min(560px,94%);}',
+      '.po-personaPop{position:fixed;top:96px;left:132px;z-index:300;max-width:min(560px,92vw);box-shadow:0 18px 50px rgba(0,0,0,.5);}',
       '.po-avatarBig{display:flex;align-items:center;justify-content:center;width:44px;height:44px;',
       'border-radius:10px;background:var(--dsw-alias-bg-layer-2);overflow:hidden;}',
       '.po-avatarBig svg{width:36px;height:36px;display:block;}',
       '.po-stateDot{position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:50%;',
       'border:2px solid var(--dsw-alias-bg-layer-1);box-sizing:content-box;}',
-      '.po-chatHead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 10px;',
+      '.po-chatHead{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 10px;',
       'border-bottom:1px solid var(--dsw-alias-border-l1);min-width:0;}',
       '.po-chatWho{display:flex;flex-direction:column;min-width:0;flex:1 1 120px;}',
+      '.po-chatUsage{position:absolute;left:50%;transform:translateX(-50%);font-size:11px;opacity:.55;white-space:nowrap;pointer-events:none;}',
       '.po-chatName{display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;font-weight:600;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       '.po-roleChip{flex:none;height:18px;padding:0 6px;border-radius:5px;border:1px solid var(--dsw-alias-border-l2);',
@@ -3930,7 +4444,7 @@ window.__ModuleLoader__.load({
       'font-weight:700;cursor:default;display:inline-flex;align-items:center;}',
       '.po-roleChip[data-role="supervisor"]{background:#e8b84a;border-color:transparent;color:#20180a;}',
       '.po-roleChip[data-role="secretary"]{background:#48b0c9;border-color:transparent;color:#0b2026;}',
-      '.po-chatTools{display:flex;gap:2px;flex:none;}',
+      '.po-chatTools{display:flex;gap:2px;flex:none;margin-left:auto;}',
       '.po-iconBtn{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;',
       'border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary);',
       'font-size:13px;cursor:pointer;}',

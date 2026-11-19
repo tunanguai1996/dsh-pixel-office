@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pixel office",
+    "description": "Adds a Pixel office panel to the sidebar: a full-bleed pixel room with eight small workstations up top (four columns, two deep, near-large and far-small) and the supervisor's and secretary's two large desks across the bottom, all seen from behind with their monitors facing the viewer. Each conversation's title is printed on its own monitor and an empty desk reads Empty; clicking a screen renames that conversation (or starts a new employee) and sets its role, and dragging a character onto another small desk swaps seats. Clicking a character opens a chat popup with an avatar bar on its left, WeChat-shaped bubbles coloured by each employee's own identity, paragraph-sized message splitting, image thumbnails and file cards, and attachments (paste or attach) sent inline or staged through the DSH upload service; Enter sends, Escape closes. When an Agent produced something since you last looked, or an approval is waiting, its character raises a hand with a small Review or Approve bubble. A top-left pill switches between workspaces/offices. The panel reads only the session list, status, and projections the Web client already holds, so it makes no model requests and sends nothing anywhere. Turn the bundle off to remove the panel."
+  }
+}

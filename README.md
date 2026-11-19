@@ -1,30 +1,60 @@
 # Pixel office
 
-A DSH Web client panel that turns a workspace into a pixel office you can work in: a perspective room with eight small workstations up top and two large desks (supervisor and secretary) across the bottom. Each Agent of the workspace sits at a desk as a small character; clicking one opens its conversation without leaving the room.
+A DSH Web client panel that turns a workspace into a pixel office you can work in: eight small workstations up top, two large desks (supervisor, secretary) across the bottom, and a chat popup for every employee. Agents are characters you can see, drag, dispatch and interview without leaving the room.
 
 ## Features
 
-- **One room per workspace.** The stage fills the panel and keeps the 440x260 aspect ratio at any size.
-- **Agents are characters.** Eight small desks (four columns, two depths, far ones drawn smaller) and two large desks seen from behind. Names are printed on the monitors, identities on the chair badges.
-- **Differs by hand.** Eight hairstyles, five accessories, five outfits and several palettes, so no two employees look alike.
-- **Drag to move.** Drop an Agent on another desk to swap seats; the order is remembered per office.
-- **Identity dialog.** Pick the built-in supervisor/secretary, or add a custom identity with its own colour, one-line summary, and a detailed persona. Identities stay in the list (with their summaries) until you delete them.
-- **Rules and memory.** Office rules live on the whiteboard, personal rules on the mug, persona in the identity dialog. They are **not** attached to every message: saving them (or clicking *Interview*) sends one memory message to that employee only, so chatting costs nothing extra in tokens.
-- **Skills on the shelf.** Each desk's shelf lists the skills its owner has used; a new employee inherits the previous occupant's notes when it moves in.
-- **Chat without leaving.** WeChat-style bubbles with avatars, per-employee colours, paragraph splitting, images as clickable thumbnails (enlarged inside the popup), files as name-and-size cards, drafts kept per employee.
-- **Unread and work states.** A hand is raised when a finished run has not been read; the state dot follows the DSH session status.
-- **Life in the room.** A cat and a golden retriever roam, doze, eat and talk; idle employees stand up, stroll and tease about their sub-agents. Ambient motion runs only while the pointer is over the office and the window is visible.
-- **Bilingual.** English and Chinese strings ship in `locale/`.
+**The room**
+- One office per workspace; the stage fills the panel at the 440:260 aspect ratio.
+- Eight small desks in two depth rows (far ones drawn smaller) plus two large desks seen from behind.
+- Names on the monitors, identities on the chair badges; every desk keeps its chair even while empty.
+- Drag an Agent onto another desk to swap seats; order is remembered per office.
+- Ambient life: a cat and a golden retriever roam, doze and eat; idle employees get up, stretch and chat. Ambient motion runs only while the pointer is over the office and the window is visible.
+- Asymmetric decor: desk rug, aisle runner, cat tower, dog bed, plants, filing cabinet, water cooler, posters.
+
+**People**
+- Eight hairstyles, five accessories, five outfits and several palettes, so no two employees look alike.
+- Identity dialog: the built-in supervisor/secretary, or a custom identity with its own colour and a one-line summary. Identities stay listed (with summaries) until you delete them; clicking the active card no longer clears it.
+- Permission level dropdown per employee (default / read-only / workspace write / full access) — a prompt-level hint, not a host enforcement.
+- Persona lives with the person, not the identity: click the avatar in the chat header to open a small popover and edit it.
+
+**Memory** (never attached to every message)
+- **Company rules** on the whiteboard: a hard list every employee follows.
+- **Team summary** next to it: shared conclusions; a finished, accepted job adds one line automatically.
+- **Personal summary** on the paper at each desk's left edge: one employee only, and inherited by whoever takes the desk next when they have none of their own.
+- All of it is sent once, when you save or when you interview the employee — never per message.
+
+**Collaboration**
+- Dispatch with one line in any top-level conversation: `@Name：task` (`@Name task` also works).
+- Only downwards: supervisor > secretary > everyone else, and nobody may task a supervisor.
+- Every dispatch becomes a task card on the local board (persisted), shown in the bottom-right corner: open / done / accepted, with the report attached.
+- **Accept** and **Reject**: accepting appends a line to the team summary; rejecting re-dispatches the job for a redo.
+- An unfinished job is handed back to its owner when the office is opened again after a restart.
+- The employee reports only to whoever dispatched the job; the report arrives as a message in that conversation.
+- A letter flies from desk to desk on dispatch and back on report, purely visual.
+- Hands are raised only for replies addressed to you, not for employee-to-employee traffic.
+
+**Chat** (WeChat-style, inside the office)
+- Bubbles split by paragraph, per-employee colours, avatars on both sides.
+- Images render as clickable thumbnails and enlarge in an overlay; file names that belong to images stay hidden.
+- Drafts are kept per employee; Enter sends, Shift+Enter breaks the line.
+- Token usage for the session is shown in the middle of the header (K/M/B).
+
+## Known limitations
+
+- Tool-generated images (an Agent writes a file and mentions its path) cannot be previewed: DSH exposes no file-preview channel to third-party client plugins. Only images attached to a message render.
+- Pending approvals/questions are not rendered inside the office; answer them in the full conversation.
+- The permission level is advisory (prompt-level), because DSH does not expose permission presets to client plugins.
 
 ## Portability
 
-Everything is built on public DSH client services only: `sessions` (list, retain, snapshot, create), the session face (`prompt`, `cancel`, `rename`), `uiConversation.imageUrl`, `fileUpload.upload`, `workspaces.archiveSession`, `layout` panel selection, plus the `main` and `sidebar.panellist` slots. No host internals, no private RPC and no browser storage shared with other plugins.
+Everything is built on public DSH client services: `sessions` (list, retain, snapshot, create), the session face (`prompt`, `cancel`, `rename`), `uiConversation.imageUrl`, `fileUpload.upload`, `workspaces.archiveSession`, `layout`, plus the `main` and `sidebar.panellist` slots. No host internals and no private RPC.
 
-The office's own metadata — identities, summaries, personas, office and personal rules, seat order, seat memory, unread stamps, drafts — is stored in `localStorage` under `dsh-pixel-office.*` and only affects prompts when you explicitly save or interview an employee.
+Office metadata lives in `localStorage` under `dsh-pixel-office.*`: roles and identity registry, seat order, personas, rules, personal summaries, team summary, seat memory, task board, capabilities, unread stamps, drafts.
 
 ## Install
 
-The bundle is a normal DSH bundle:
+Add the folder (or the published package) as a DSH bundle, then restart DSH; the office appears as a sidebar entry.
 
 ```json
 {
@@ -40,48 +70,31 @@ The bundle is a normal DSH bundle:
 }
 ```
 
-Add it to a profile and restart DSH; the office appears as a sidebar entry named **像素办公室 / Pixel office**.
+## How it works (for contributors)
 
-## Layout
+- `index.js` — Host half: bundle entry only.
+- `client.js` — the whole panel, no dependencies beyond the React the client provides.
+  - `apply(ctx)` registers the sidebar icon and the main panel and reads only public client services.
+  - The room is plain SVG (`RoomArtInner`, memoised), with HTML sprites layered on top so every click target stays above the art.
+  - `OfficeView` owns identity, persona, memory, seat order, the task board and the dispatch watcher.
+  - `ChatPanel` renders the conversation, images, tokens and the persona popover.
+- `locale/en.json`, `locale/zh.json` — strings; `cordis.patch.yml` — bundle patch; `icon.svg` — sidebar icon.
 
-| Area | What it shows |
-| --- | --- |
-| Top wall | Windows, whiteboard with office rules, wall clock, plants, poster |
-| Upper half | Eight small desks, two depth rows |
-| Bottom | Supervisor and secretary desks, seen from behind |
-| Floor | Desk rug, aisle runner, cat tower, dog bed and bowl |
-| Ambient | Cat, dog, strolling employees, chat and quip bubbles |
-
-## Licence
-
-MIT — see `LICENSE`.
-
-## Known limitations
-
-- **Tool-generated images show as file cards.** When an Agent produces an image through a tool, the session event only carries its file path, and DSH exposes no file-preview channel to third-party client plugins (`remote.workspaceFiles` is reserved for first-party plugins, and the `dsh-resource://` scheme is not wired for bundles). The card shows the file name and can be clicked; open the full conversation in DSH to see the image itself.
-- **Pending approvals are not rendered.** The office chat shows talk only; approve or answer questions in the full conversation.
-- **Ambient life is paused** unless the pointer is over the office and the window is visible, by design.
-
-## How it works (for contributors and reviewing Agents)
-
-- `index.js` — the Host half: declares the bundle entry (no host services are registered).
-- `client.js` — the whole Web panel in one file, no dependencies except the React the client provides. It exports one client module through `window.__ModuleLoader__.load`, then:
-  - `apply(ctx)` registers the sidebar icon (`sidebar.panellist`) and the main panel (`main`), and injects only public client services: `sessions`, `uiConversation`, `fileUpload`, `workspaces`, `layout`, locale;
-  - the room is drawn as plain SVG (`RoomArtInner`), with HTML sprites layered on top so every click target stays above the art;
-  - state lives in `localStorage` under `dsh-pixel-office.*`: `.roles` (assignment, identity registry and summaries), `.seat-order`, `.persona`, `.rules`, `.agent-rules`, `.seat-memory`, `.seen-at`, `.draft.<agentId>`;
-  - prompts only ever carry what you type; the memory block (identity, summary, rules, persona) is sent once when you save or interview, never per message.
-- `locale/en.json`, `locale/zh.json` — strings; `cordis.patch.yml` — the bundle patch; `icon.svg` — the sidebar icon.
-
-### Touch points when changing behaviour
+### Touch points
 
 | Want to change | Edit |
 | --- | --- |
 | Desk layout, depth, sprite size | `COLUMNS`, `ROW_DEFS`, `BIG_DEFS`, `smallSeat`, `bigSeat` |
-| Character looks | `Sprite` (back / standing / seated), `paletteOf` |
+| Character looks | `Sprite`, `paletteOf` |
+| Room artwork | `RoomArtInner` |
 | Chat bubbles, images, lightbox | `ChatPanel`, `ChatRow`, `ChatImage`, `FileCard` |
-| Message parsing | `blocksOf` (accepts `kind` and `type`, `attachment` anywhere) |
-| Memory / interview | `interviewAgent`, `interviewRef` |
-| Ambient life | the four timers in `OfficeView` (`hoveredRef` gates them) |
+| Message parsing | `blocksOf` (accepts `kind` and `type`, attachment anywhere) |
+| Dispatch, tasks, letters | the dispatch watcher in `OfficeView`, `parseDispatch`, `addTask`, `closeTask`, `flyLetter` |
+| Memory and interview | `interviewAgent`, `teamBook`, `agentRulesBook`, `personaEditor` |
 | Identity registry | `roleBook`, `identitySummaries`, `summaryOfIdentity`, `removeIdentity` |
 
-Run `node --check client.js` after edits; the panel is wrapped in a React error boundary that shows the error text instead of taking down the app.
+Run `node --check client.js` after edits; the panel is wrapped in an error boundary that shows the error text instead of taking down the app.
+
+## Licence
+
+MIT — see `LICENSE`.
