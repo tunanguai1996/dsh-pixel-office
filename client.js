@@ -52,6 +52,26 @@ window.__ModuleLoader__.load({
     const TEAM_KEY = 'dsh-pixel-office.team-memory'
     const TASK_KEY = 'dsh-pixel-office.tasks'
     const CAP_KEY = 'dsh-pixel-office.capabilities'
+    const SUMMARY_KEY = 'dsh-pixel-office.personal-summary'
+
+    function readSummaries() {
+      try {
+        const raw = window.localStorage.getItem(SUMMARY_KEY)
+        if (!raw) return {}
+        const parsed = JSON.parse(raw)
+        return parsed && typeof parsed === 'object' ? parsed : {}
+      } catch (error) {
+        return {}
+      }
+    }
+
+    function writeSummaries(book) {
+      try {
+        window.localStorage.setItem(SUMMARY_KEY, JSON.stringify(book))
+      } catch (error) {
+        /* A storage that is blocked keeps them for this page only. */
+      }
+    }
     const SEAT_MEMORY_KEY = 'dsh-pixel-office.seat-memory'
     const PERSONA_KEY = 'dsh-pixel-office.persona'
     const MEMORY_HASH_KEY = 'dsh-pixel-office.memory-hash'
@@ -105,7 +125,13 @@ window.__ModuleLoader__.load({
         teamMemoryPrefix: '[Team summary shared by the whole office]',
         rulesExample: 'Keep replies short.',
         rulesPrefix: '[Office rules that every answer must follow]',
-        agentRules: 'Personal summary',
+        agentRules: 'Personal rules',
+        personalSummaryLabel: 'Personal summary',
+        personalSummaryHint: 'Key points you drew from the work itself; they read like skills, not orders.',
+        personalSummaryEmpty: 'Nothing yet.',
+        personalSummaryPlaceholder: 'A point worth keeping, e.g. our sprites are 26x34 with three shading levels',
+        personalSummaryAdd: 'Add',
+        personalSummaryPrefix: '[Personal summary kept for this employee]',
         agentRulesHint: 'One line each; only this employee follows them, on top of the office rules.',
         agentRulesPrefix: '[Personal rules for this employee]',
         interview: 'Interview',
@@ -208,8 +234,14 @@ window.__ModuleLoader__.load({
         teamMemoryPrefix: '【本办公室的工作总结】',
         rulesExample: '回复尽量简短。',
         rulesPrefix: '【办公室规定，必须严格遵守】',
-        agentRules: '个人总结',
-        agentRulesHint: '一行一条；只有这位员工自己看，叠加在办公室规定之上。',
+        agentRules: '个人规定',
+        personalSummaryLabel: '个人总结',
+        personalSummaryHint: '从工作里提炼出来的要点，偏技能与经验，不是命令。',
+        personalSummaryEmpty: '还没有记录。',
+        personalSummaryPlaceholder: '值得留下的要点，例如：角色立绘统一 26x34，三级明度',
+        personalSummaryAdd: '添加',
+        personalSummaryPrefix: '【这位员工的个人总结】',
+        agentRulesHint: '一行一条；只有这位员工自己遵守，叠加在办公室规定之上。',
         agentRulesPrefix: '【这位员工的个人规定】',
         interview: '约谈',
         dispatchPrefix: '【来自',
@@ -1638,7 +1670,7 @@ window.__ModuleLoader__.load({
       }, parts)
     }
 
-    function Station({ seat, t, away, role, label, onSelect, onOpenEditor, onOpenSkills, onOpenMug, onDropAgent, quip }) {
+    function Station({ seat, t, away, role, label, onSelect, onOpenEditor, onOpenSkills, onOpenMug, onOpenSummary, onDropAgent, quip }) {
       const def = seat.def
       const agent = seat.agent
       const state = agent ? (away ? 'idle' : agent.state) : 'idle'
@@ -1715,7 +1747,7 @@ window.__ModuleLoader__.load({
           width: ((def.kind === 'big' ? 16 : 9) * (def.scale || 1) / ROOM_W) * 100 + '%',
           height: ((def.kind === 'big' ? 10 : 5) * (def.scale || 1) / ROOM_H) * 100 + '%',
         },
-        onClick: (event) => { event.stopPropagation(); onOpenMug(seat) },
+        onClick: (event) => { event.stopPropagation(); onOpenSummary(seat) },
       }))
       if (agent) {
         parts.push(h('button', {
@@ -1904,6 +1936,7 @@ window.__ModuleLoader__.load({
             onOpenEditor: scene.onOpenEditor,
             onOpenSkills: scene.onOpenSkills,
             onOpenMug: scene.onOpenMug,
+            onOpenSummary: scene.onOpenSummary,
             onDropAgent: scene.onDropAgent,
             quip: scene.quip,
             away: !!scene.stroll && seat.agent !== null && scene.stroll.agentId === seat.agent.id,
@@ -2547,6 +2580,37 @@ window.__ModuleLoader__.load({
       const namesRef = React.useRef(readNames())
       const [mugEditor, setMugEditor] = React.useState(null)
       const [personaEditor, setPersonaEditor] = React.useState(null)
+      const [summaryBook, setSummaryBook] = React.useState(readSummaries)
+      const [summaryEditor, setSummaryEditor] = React.useState(null)
+      const [summaryDraft, setSummaryDraft] = React.useState('')
+      const openSummary = React.useCallback((seat) => {
+        const agent = seat && seat.agent
+        if (!agent) return
+        setSummaryDraft('')
+        setSummaryEditor({ agentId: agent.id, name: agent.name })
+      }, [])
+      const addSummary = (agentId, text) => {
+        const value = String(text || '').trim()
+        if (!agentId || value === '') return
+        setSummaryBook((previous) => {
+          const next = Object.assign({}, previous)
+          const list = (next[agentId] || EMPTY).slice(-40)
+          list.push({ text: value.slice(0, 400), at: Date.now() })
+          next[agentId] = list
+          writeSummaries(next)
+          return next
+        })
+      }
+      const removeSummary = (agentId, index) => {
+        setSummaryBook((previous) => {
+          const next = Object.assign({}, previous)
+          const list = (next[agentId] || EMPTY).slice()
+          list.splice(index, 1)
+          next[agentId] = list
+          writeSummaries(next)
+          return next
+        })
+      }
       const [cardPos, setCardPos] = React.useState(null)
       const dragRef = React.useRef(null)
       const startCardDrag = React.useCallback((event) => {
@@ -3284,6 +3348,17 @@ window.__ModuleLoader__.load({
         lines.push(t('memoryName') + ' ' + agent.name + (identity !== '' && identity !== agent.name ? '（' + identity + '）' : ''))
         const identitySummary = next.summary !== undefined ? String(next.summary || '').trim() : summaryOfIdentity(identity)
         if (identitySummary !== '') lines.push(t('identitySummaryLabel') + ' ' + identitySummary)
+        const ownSummary = summaryBook[agentId] || EMPTY
+        if (ownSummary.length > 0) {
+          let notes = ''
+          const recent = ownSummary.slice(-10)
+          for (let index = recent.length - 1; index >= 0; index -= 1) {
+            const line = '- ' + recent[index].text
+            if (notes.length + line.length > 800) break
+            notes = line + String.fromCharCode(10) + notes
+          }
+          lines.push(t('personalSummaryPrefix') + String.fromCharCode(10) + notes.trim())
+        }
         const caps = capBook[agentId] || EMPTY
         if (caps.length > 0) lines.push(t('capsPrefix') + '\n' + caps.map((line) => '- ' + line).join('\n'))
         const persona = next.persona !== undefined ? String(next.persona || '').trim() : String(personaBook[agentId] || '').trim()
@@ -3318,7 +3393,7 @@ window.__ModuleLoader__.load({
           if (face.rename && agent.name) Promise.resolve(face.rename(agent.name)).then(send, send)
           else send()
         }, done)
-      }, [agents, officeRules, personaBook, officeLabels, sessions, t])
+      }, [agents, officeRules, personaBook, officeLabels, sessions, t, summaryBook])
 
       interviewRef.current = interviewAgent
 
@@ -3564,6 +3639,7 @@ window.__ModuleLoader__.load({
         onOpenEditor: openEditor,
         onOpenSkills: openSkills,
         onOpenMug: openMug,
+        onOpenSummary: openSummary,
         board: board,
         onDropAgent: moveAgentToSeat,
         quip: quip,
@@ -3700,8 +3776,10 @@ window.__ModuleLoader__.load({
               dispatchedRef.current[agent.id] = reply.seq
               const dispatch = parseDispatch(text)
               if (!dispatch) return
-              const target = agents.find((item) => item.id !== agent.id
-                && (item.name === dispatch.target || (officeLabels[item.id] || '') === dispatch.target))
+              const others = agents.filter((item) => item.id !== agent.id)
+              // Identity first, name second: either way finds the right person.
+              const target = others.find((item) => (officeLabels[item.id] || '') === dispatch.target)
+                || others.find((item) => item.name === dispatch.target)
               if (!target) return
               // Only a subordinate may receive work: rank must be strictly lower.
               const senderRank = rankOf(officeLabels[agent.id] || '')
@@ -3712,6 +3790,7 @@ window.__ModuleLoader__.load({
               if (targetRank === senderRank && senderRank !== 1) return
               interAgent.add(agent.id)
               interAgent.add(target.id)
+              markSeen(target.id, target.updatedAt || Date.now())
               delegatedRef.current[target.id] = { from: agent.id, task: dispatch.task }
               addTask({ from: agent.id, to: target.id, text: dispatch.task, status: 'open' })
               flyLetter(agent.id, target.id, 'task')
@@ -3724,6 +3803,7 @@ window.__ModuleLoader__.load({
             const text = reply.text
             if (text === '') return
             closeTask(agent.id, text)
+            markSeen(agent.id, agent.updatedAt || Date.now())
             if (job.from) {
               flyLetter(agent.id, job.from, 'report')
               promptAgent(job.from, t('reportPrefix') + ' ' + agent.name + ']\n' + text)
@@ -4085,7 +4165,20 @@ window.__ModuleLoader__.load({
               onChange: (event) => { setEditorField('caps', event.target.value) },
             }, CAP_OPTIONS.map((option) => h('option', { key: option || 'default', value: option },
               option === '' ? t('capsDefault') : option))),
-            h('div', { className: 'po-editorActions' },
+            h('div', { className: 'po-editorActions po-editorSplit' },
+              editor.agentId
+                ? h('button', {
+                  type: 'button',
+                  className: 'po-btn po-roleDelete',
+                  onClick: () => {
+                    if (typeof window.confirm === 'function' && !window.confirm(t('dismissConfirm'))) return
+                    const id = editor.agentId
+                    closeEditor()
+                    dismissAgent(id)
+                  },
+                }, t('dismiss'))
+                : null,
+              h('span', { className: 'po-editorGap' }),
               h('button', { type: 'button', className: 'po-btn', onClick: closeEditor }, t('cancel')),
               h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: saveEditor }, t('save'))))
           : h('div', { className: 'po-editor', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('rename') },
@@ -4161,6 +4254,44 @@ window.__ModuleLoader__.load({
           h('div', { className: 'po-editorActions' },
             h('button', { type: 'button', className: 'po-btn', onClick: () => setPersonaEditor(null) }, t('cancel')),
             h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: savePersona }, t('save')))))
+
+      const summaryDialog = summaryEditor === null
+        ? null
+        : (() => {
+          const entries = summaryBook[summaryEditor.agentId] || EMPTY
+          return h('div', {
+            className: 'po-modal po-editorBackdrop',
+            onClick: (event) => { if (event.target === event.currentTarget) setSummaryEditor(null) },
+          },
+          h('div', { className: 'po-editor po-summaryDialog', role: 'dialog', 'aria-modal': 'true' },
+            h('h2', { className: 'po-editorTitle' }, t('personalSummaryLabel') + ' · ' + summaryEditor.name),
+            h('p', { className: 'po-editorHint' }, t('personalSummaryHint')),
+            entries.length === 0
+              ? h('p', { className: 'po-editorHint' }, t('personalSummaryEmpty'))
+              : h('div', { className: 'po-memoList' },
+                entries.slice().reverse().map((entry, index) => h('div', { className: 'po-memoRow', key: 'ps' + index },
+                  h('span', { className: 'po-memoText' }, entry.text),
+                  h('button', {
+                    type: 'button',
+                    className: 'po-memoDrop',
+                    onClick: () => removeSummary(summaryEditor.agentId, entries.length - 1 - index),
+                  }, '✕')))),
+            h('div', { className: 'po-memoAdd po-memoAddWide' },
+              h('textarea', {
+                className: 'po-editorInput',
+                rows: 3,
+                value: summaryDraft,
+                placeholder: t('personalSummaryPlaceholder'),
+                onChange: (event) => setSummaryDraft(event.target.value),
+              }),
+              h('button', {
+                type: 'button',
+                className: 'po-btn',
+                onClick: () => { addSummary(summaryEditor.agentId, summaryDraft); setSummaryDraft('') },
+              }, t('personalSummaryAdd'))),
+            h('div', { className: 'po-editorActions' },
+              h('button', { type: 'button', className: 'po-btn po-btnPrimary', onClick: () => setSummaryEditor(null) }, t('close')))))
+        })()
 
       const rulesDialog = rulesEditor === null
         ? null
@@ -4255,7 +4386,7 @@ window.__ModuleLoader__.load({
       h('div', { className: 'po-sceneCol', ref: sceneRef },
         h(Stage, { scene: scene, t: t, size: stageSize })))
 
-      return h('section', { className: 'po-page' }, offices, body, editorDialog, skillsDialog, rulesDialog, mugDialog, personaDialog, modal)
+      return h('section', { className: 'po-page' }, offices, body, editorDialog, skillsDialog, rulesDialog, mugDialog, personaDialog, summaryDialog, modal)
     }
 
     /** Page shell: styles, error containment, body. */
@@ -4371,7 +4502,7 @@ window.__ModuleLoader__.load({
       'display:flex;flex-direction:column;gap:2px;padding:1.2% 1.4%;border:0;border-radius:2px;',
       'background:transparent;color:#2a2c33;font:inherit;text-align:left;cursor:pointer;overflow:hidden;}',
       '.po-boardBtn:hover{background:rgba(255,255,255,.35);box-shadow:0 0 0 1px rgba(40,44,54,.45) inset;}',
-      '.po-boardTitle{font-size:0.62cqw;font-weight:700;letter-spacing:.08em;color:#5b5f6a;flex:none;}',
+      '.po-boardTitle,.po-boardLine,.po-boardEmpty{display:none;}',
       '.po-boardLine{font-size:0.55cqw;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
       '.po-boardEmpty{font-size:0.55cqw;color:#8a8e97;}',
       '.po-screenNames{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;}',
@@ -4471,6 +4602,10 @@ window.__ModuleLoader__.load({
       '.po-personaBackdrop{position:fixed;inset:0;z-index:299;background:transparent;}',
       '.po-avatarBtn:hover{box-shadow:0 0 0 2px var(--dsw-alias-brand-primary,#5b8def);}',
       '.po-personaDialog{width:min(560px,94%);}',
+      '.po-summaryDialog{width:min(420px,94%);}',
+      '.po-memoAddWide{flex-direction:column;align-items:stretch;width:100%;}',
+      '.po-memoAddWide .po-editorInput{width:100%;box-sizing:border-box;}',
+      '.po-memoAddWide .po-editorInput{min-height:72px;resize:vertical;}',
       '.po-personaPop{position:fixed;z-index:300;width:min(560px,92vw);box-shadow:0 18px 50px rgba(0,0,0,.5);}',
       '.po-personaPop .po-editorInput{min-height:240px;}',
       '.po-avatarBig{display:flex;align-items:center;justify-content:center;width:44px;height:44px;',
@@ -4481,6 +4616,43 @@ window.__ModuleLoader__.load({
       '.po-chatHead{position:relative;cursor:grab;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 10px;',
       'border-bottom:1px solid var(--dsw-alias-border-l1);min-width:0;}',
       '.po-chatWho{display:flex;flex-direction:column;min-width:0;flex:1 1 120px;}',
+      '.po-editorWide{width:min(780px,96%);}',
+      '.po-editorHint{font-size:12px;line-height:1.5;opacity:.6;}',
+      '.po-twoCol{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}',
+      '.po-col{display:flex;flex-direction:column;gap:8px;min-width:0;}',
+      '.po-rulesArea{height:190px;resize:vertical;}',
+      '.po-editorSplit{justify-content:flex-start;align-items:center;}',
+      '.po-editorGap{flex:1 1 auto;}',
+      '.po-memoList{max-height:150px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;background:rgba(0,0,0,.18);}',
+      '.po-memoRow{display:flex;align-items:flex-start;gap:6px;}',
+      '.po-memoWho{display:flex;align-items:center;gap:4px;flex:0 0 auto;}',
+      '.po-memoTag{font-size:10px;line-height:1.3;padding:1px 5px;border-radius:6px;color:#151a24;font-weight:700;}',
+      '.po-memoText{flex:1;font-size:12px;line-height:1.45;white-space:normal;word-break:break-word;opacity:.9;}',
+      '.po-memoDrop{flex:0 0 auto;border:0;background:transparent;color:inherit;opacity:.45;cursor:pointer;}',
+      '.po-memoAdd{display:flex;gap:6px;align-items:center;}',
+      '.po-bubbleMuted{opacity:.55;font-style:italic;}',
+      '.po-taskChip{position:absolute;right:8px;bottom:8px;z-index:12;padding:4px 10px;border-radius:10px;border:1px solid var(--dsw-alias-border-l1,#2b3350);background:rgba(20,24,38,.86);color:#e6e9f2;font:inherit;font-size:12px;cursor:pointer;}',
+      '.po-taskPanel{position:absolute;right:8px;bottom:38px;z-index:12;width:min(320px,62%);max-height:52%;overflow:auto;padding:10px;border-radius:12px;border:1px solid var(--dsw-alias-border-l1,#2b3350);background:rgba(16,19,30,.94);color:#e6e9f2;font-size:12px;}',
+      '.po-taskHead{display:flex;align-items:center;justify-content:space-between;font-weight:700;margin-bottom:6px;}',
+      '.po-taskEmpty{opacity:.6;}',
+      '.po-taskRow{display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-top:1px solid rgba(255,255,255,.07);}',
+      '.po-taskDot{flex:0 0 auto;width:8px;height:8px;margin-top:4px;border-radius:50%;background:#e8b84a;}',
+      '.po-taskDot[data-done="true"]{background:#54b98a;}',
+      '.po-taskDot[data-accepted="true"]{background:#5b8def;}',
+      '.po-taskBody{flex:1;min-width:0;}',
+      '.po-taskName{white-space:normal;word-break:break-word;}',
+      '.po-taskReport{margin-top:3px;opacity:.7;font-size:11px;white-space:normal;word-break:break-word;}',
+      '.po-taskActions{display:flex;gap:6px;margin-top:6px;}',
+      '.po-letter{position:absolute;z-index:11;left:var(--x0);top:var(--y0);font-size:26px;pointer-events:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.4));animation:po-fly 1.4s cubic-bezier(.4,.1,.7,1) forwards;}',
+      '.po-letter[data-kind="report"]{filter:hue-rotate(120deg);}',
+      '@keyframes po-fly{0%{left:var(--x0);top:var(--y0);opacity:0;transform:scale(.8);}12%{opacity:1;transform:scale(1);}55%{left:var(--xm);top:var(--ym);opacity:1;}92%{opacity:1;}100%{left:var(--x1);top:var(--y1);opacity:0;transform:scale(.85);}}',
+      '.po-personaDialog{width:min(560px,94%);}',
+      '.po-personaPop{position:fixed;z-index:300;width:min(560px,92vw);box-shadow:0 18px 50px rgba(0,0,0,.5);}',
+      '.po-personaPop .po-editorInput{min-height:240px;}',
+      '.po-personaBackdrop{position:fixed;inset:0;z-index:299;background:transparent;}',
+      '.po-avatarWrap{position:relative;flex:none;width:44px;height:44px;border:0;background:transparent;padding:0;}',
+      '.po-avatarBtn{cursor:pointer;border-radius:12px;}',
+      '.po-avatarBtn:hover{box-shadow:0 0 0 2px var(--dsw-alias-brand-primary,#5b8def);}',
       '.po-chatUsage{position:absolute;left:50%;transform:translateX(-50%);font-size:11px;opacity:.55;white-space:nowrap;pointer-events:none;}',
       '.po-chatName{display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;font-weight:600;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
